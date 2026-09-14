@@ -76,7 +76,7 @@ from telegram_invite_bot.webhook.payments import (
     _REVERIFY_WORKERS,
     shutdown_reverify_pool,
 )
-from telegram_invite_bot.webhook.reverify_throttle import _PER_CLIENT_CAPACITY
+from telegram_invite_bot.webhook.reverify_throttle import _PER_CLIENT_CAPACITY, ReverifyThrottle
 from telegram_invite_bot.webhook.server import create_app
 
 if TYPE_CHECKING:
@@ -224,6 +224,16 @@ class _Reverify:
     def distinct_threads(self) -> set[str]:
         with self._lock:
             return set(self.threads)
+
+
+class _FrozenClockThrottle(ReverifyThrottle):
+    """The production limiter, with every delivery seen at the same instant."""
+
+    __slots__ = ()
+
+    def admit(self, client: str, *, now: float) -> bool:
+        del now
+        return super().admit(client, now=1000.0)
 
 
 def _install(monkeypatch: pytest.MonkeyPatch, reverify: _Reverify) -> None:
@@ -392,6 +402,10 @@ async def test_a_flood_past_the_budget_is_refused_before_the_merchant_api(
     """
     reverify = _Reverify()
     _install(monkeypatch, reverify)
+    # The webhook reads the wall clock, and a slow runner spends long
+    # enough on the burst for the refill to admit one more delivery.
+    # The limiter's arithmetic is not under test here, so stop its clock.
+    monkeypatch.setattr(payments_mod, "_REVERIFY_THROTTLE", _FrozenClockThrottle())
 
     over = int(_PER_CLIENT_CAPACITY) + 5
     async with _client(application) as client:
