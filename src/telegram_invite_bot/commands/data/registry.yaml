@@ -1,0 +1,1017 @@
+start:
+  handler: cmd_start
+  aliases:
+  - start
+  contexts:
+  - group
+  - private
+  description: Точка входа, приветствие, deep-links
+help:
+  handler: cmd_help
+  aliases:
+  - commands
+  - h
+  - help
+  contexts:
+  - group
+  - private
+  description: Справка и список команд
+time:
+  handler: cmd_time
+  aliases:
+  - time
+  - time_msk
+  - время
+  contexts:
+  - group
+  - private
+  description: Время по Москве / в городе
+city:
+  handler: cmd_city
+  aliases:
+  - city
+  - город
+  contexts:
+  - group
+  - private
+  description: Показать/установить город
+timezone:
+  handler: cmd_timezone
+  aliases:
+  - timezone
+  - tz
+  - часовой_пояс
+  contexts:
+  - private
+  description: Часовой пояс
+weather:
+  handler: cmd_weather
+  aliases:
+  - weather
+  - погода
+  contexts:
+  - group
+  - private
+  description: Погода
+forecast:
+  handler: cmd_forecast
+  aliases:
+  - forecast
+  - прогноз
+  contexts:
+  - group
+  - private
+  description: Прогноз на 7 дней
+joke:
+  handler: cmd_joke
+  aliases:
+  - joke
+  - анекдот
+  - шутка
+  contexts:
+  - group
+  - private
+  description: Шутка от Кома
+joke18:
+  handler: cmd_joke18
+  aliases:
+  - joke18
+  - анекдот18
+  - шутка18
+  contexts:
+  - group
+  - private
+  description: Шутка 18+ (мемы/острый юмор)
+quote:
+  handler: cmd_quote
+  aliases:
+  - quote
+  - цитата
+  contexts:
+  - group
+  - private
+  description: Цитата от Кома
+calc:
+  handler: cmd_calc
+  aliases:
+  - calc
+  - калькулятор
+  contexts:
+  - group
+  - private
+  description: Калькулятор
+roll:
+  handler: cmd_roll
+  aliases:
+  - roll
+  - кубик
+  contexts:
+  - group
+  - private
+  description: Бросок кубика
+flip:
+  handler: cmd_flip
+  aliases:
+  - flip
+  - монетка
+  contexts:
+  - group
+  - private
+  description: Подброс монетки
+roulette:
+  handler: cmd_roulette
+  aliases:
+  - roulette
+  contexts:
+  - group
+  - private
+  description: Рулетка
+dice:
+  handler: cmd_dice
+  aliases:
+  - dice
+  - кубик
+  contexts:
+  - group
+  - private
+  description: Игральный кубик
+duel:
+  handler: cmd_duel
+  aliases:
+  - duel
+  contexts:
+  - group
+  - private
+  description: Дуэль
+duel_stats:
+  handler: cmd_duel_stats
+  aliases:
+  - duel_stats
+  contexts:
+  - group
+  - private
+  description: Статистика дуэлей
+cpc:
+  handler: cmd_cpc
+  aliases:
+  - cpc
+  - кнб
+  contexts:
+  - group
+  description: Камень, ножницы, бумага на ставки
+accept:
+  handler: cmd_accept
+  aliases:
+  - accept
+  contexts:
+  - group
+  - private
+  description: Принять вызов КНБ (в ответ на сообщение бота)
+decline:
+  handler: cmd_decline
+  aliases:
+  - decline
+  contexts:
+  - group
+  - private
+  description: Отклонить вызов КНБ
+cancel_game:
+  handler: cmd_cancel_game
+  aliases:
+  - cancel_game
+  contexts:
+  - group
+  - private
+  description: Отменить текущую игру КНБ
+currency:
+  handler: cmd_currency
+  aliases:
+  - currency
+  - валюта
+  contexts:
+  - group
+  - private
+  description: Настройка валюты
+rate:
+  handler: cmd_rate
+  aliases:
+  - rate
+  - курс
+  - курсы
+  contexts:
+  - group
+  - private
+  description: Курсы валют
+crypto:
+  handler: cmd_crypto
+  aliases:
+  - crypto
+  - крипта
+  - криптовалюта
+  contexts:
+  - group
+  - private
+  description: Курсы крипты
+convert:
+  handler: cmd_convert
+  aliases:
+  - convert
+  - конверт
+  - конвертация
+  contexts:
+  - group
+  - private
+  description: Конвертация DLAB
+balance:
+  handler: cmd_balance
+  aliases:
+  - bal
+  - balance
+  contexts:
+  - group
+  - private
+  description: Баланс
+daily:
+  handler: cmd_daily
+  aliases:
+  - daily
+  contexts:
+  - group
+  - private
+  description: Ежедневный бонус
+buy:
+  handler: cmd_buy
+  aliases:
+  - buy
+  contexts:
+  - private
+  description: Покупка монет
+send:
+  handler: cmd_send
+  aliases:
+  - send
+  contexts:
+  - group
+  - private
+  description: Перевод монет
+withdraw:
+  handler: cmd_withdraw
+  aliases:
+  - withdraw
+  - вывод
+  contexts:
+  - private
+  description: Вывод монет
+withdraw_status:
+  handler: cmd_withdraw_status
+  aliases:
+  - withdraw_status
+  contexts:
+  - private
+  description: Статус выводов
+top:
+  handler: cmd_top
+  aliases:
+  - top
+  contexts:
+  - group
+  - private
+  description: Топ игроков
+marry:
+  handler: cmd_marry
+  aliases:
+  - marry
+  - брак
+  - жениться
+  contexts:
+  - group
+  - private
+  description: Предложить брак
+marry_accept:
+  handler: cmd_marry_accept_decline
+  aliases:
+  - marry_accept
+  contexts:
+  - group
+  - private
+  description: Принять брак
+marry_decline:
+  handler: cmd_marry_accept_decline
+  aliases:
+  - marry_decline
+  contexts:
+  - group
+  - private
+  description: Отклонить брак
+marriage:
+  handler: cmd_marriage
+  aliases:
+  - marriage
+  - my_marriage
+  - брак_статус
+  contexts:
+  - group
+  - private
+  description: Мой брак
+divorce:
+  handler: cmd_divorce
+  aliases:
+  - divorce
+  - развод
+  contexts:
+  - group
+  - private
+  description: Расторгнуть брак
+marry_top_on:
+  handler: cmd_marry_top_on
+  aliases:
+  - marry_top_on
+  - брак_рейтинг_вкл
+  contexts:
+  - group
+  - private
+  description: Включить брак в рейтинг
+marry_top_off:
+  handler: cmd_marry_top_off
+  aliases:
+  - marry_top_off
+  - брак_рейтинг_выкл
+  contexts:
+  - group
+  - private
+  description: Выключить брак из рейтинга
+marry_extend:
+  handler: cmd_marry_extend
+  aliases:
+  - marry_extend
+  - брак_продлить
+  contexts:
+  - group
+  - private
+  description: Продлить брак
+marry_auto_divorce:
+  handler: cmd_marry_auto_divorce
+  aliases:
+  - marry_auto_divorce
+  - брак_режим_развода
+  contexts:
+  - group
+  - private
+  description: Режим развода
+marry_other:
+  handler: cmd_marry_other
+  aliases:
+  - marry_other
+  - твой_брак
+  contexts:
+  - group
+  - private
+  description: Брак другого пользователя
+marriages:
+  handler: cmd_marriages
+  aliases:
+  - marriages
+  - браки
+  - пары
+  contexts:
+  - group
+  - private
+  description: Список пар
+relationship:
+  handler: cmd_relationship
+  aliases:
+  - rel
+  - relationship
+  - в_отношениях
+  - отношения
+  contexts:
+  - group
+  - private
+  description: Отношения
+breakup:
+  handler: cmd_breakup
+  aliases:
+  - breakup
+  - расстаться
+  contexts:
+  - group
+  - private
+  description: Прекратить отношения
+relations:
+  handler: cmd_relations
+  aliases:
+  - relations
+  - отношения_список
+  contexts:
+  - group
+  - private
+  description: Список отношений
+rp_commands:
+  handler: cmd_rp_commands
+  aliases:
+  - rp_commands
+  - рп_команды
+  contexts:
+  - group
+  - private
+  description: РП-команды
+shop:
+  handler: cmd_shop
+  aliases:
+  - shop
+  contexts:
+  - group
+  - private
+  description: Магазин
+inventory:
+  handler: cmd_inventory
+  aliases:
+  - inv
+  - inventory
+  contexts:
+  - group
+  - private
+  description: Инвентарь
+achievements:
+  handler: cmd_achievements
+  aliases:
+  - ach
+  - achievements
+  contexts:
+  - group
+  - private
+  description: Достижения
+lang:
+  handler: cmd_lang
+  aliases:
+  - lang
+  - language
+  - язык
+  contexts:
+  - group
+  - private
+  description: Язык бота
+settings:
+  handler: cmd_settings
+  aliases:
+  - settings
+  - настройки
+  contexts:
+  - private
+  description: Настройки пользователя
+mygroups:
+  handler: cmd_mygroups
+  aliases:
+  - mygroups
+  - мои_группы
+  contexts:
+  - private
+  description: Мои группы
+nick:
+  handler: cmd_nick
+  aliases:
+  - nick
+  - setnick
+  - ник
+  - никнейм
+  contexts:
+  - group
+  description: Локальный ник в группе
+donate:
+  handler: cmd_donate
+  aliases:
+  - donate
+  contexts:
+  - group
+  description: Донат в группу
+donaters:
+  handler: cmd_donaters
+  aliases:
+  - donaters
+  - донатеры
+  contexts:
+  - group
+  description: Топ донатеров
+rating:
+  handler: cmd_rating
+  aliases:
+  - rating
+  - рейтинг
+  contexts:
+  - private
+  description: Рейтинг групп
+mydonates:
+  handler: cmd_mydonates
+  aliases:
+  - mydonates
+  - мои_донаты
+  contexts:
+  - private
+  description: Мои донаты
+groupstats:
+  handler: cmd_groupstats
+  aliases:
+  - group_treasury
+  - groupstats
+  - казна_группы
+  - статистика_группы
+  contexts:
+  - group
+  - private
+  description: Статистика/казна группы
+group_pay:
+  handler: cmd_group_pay
+  aliases:
+  - group_pay
+  - выплата_из_казны
+  contexts:
+  - group
+  description: Выплата из казны
+referral:
+  handler: cmd_referral
+  aliases:
+  - referral
+  - реферал
+  - реферальная_ссылка
+  contexts:
+  - private
+  description: Реферальная ссылка
+referrals:
+  handler: cmd_referrals
+  aliases:
+  - referrals
+  - мои_рефералы
+  - рефералы
+  contexts:
+  - private
+  description: Мои рефералы
+commission:
+  handler: cmd_commission
+  aliases:
+  - commission
+  - комиссии
+  - мои_комиссии
+  contexts:
+  - private
+  description: Мои комиссии
+dev:
+  handler: cmd_dev
+  aliases:
+  - dev
+  - developer
+  contexts:
+  - private
+  description: Панель разработчика
+admin:
+  handler: cmd_admin
+  aliases:
+  - admin
+  contexts:
+  - private
+  description: Админ-панель групп
+admin_help:
+  handler: cmd_admin_help
+  aliases:
+  - admin_help
+  - owner_help
+  contexts:
+  - private
+  description: Помощь владельцу
+set_admin_password:
+  handler: cmd_set_admin_password
+  aliases:
+  - set_admin_password
+  contexts:
+  - private
+  description: Установить пароль админки
+create_check:
+  handler: cmd_create_check
+  aliases:
+  - check
+  - create_check
+  contexts:
+  - private
+  description: Создать чек
+add_required_chat:
+  handler: cmd_add_required_chat
+  aliases:
+  - add_required_chat
+  contexts:
+  - private
+  description: Добавить обязательную подписку
+deploy:
+  handler: cmd_deploy
+  aliases:
+  - deploy
+  contexts:
+  - private
+  description: Деплой
+reload:
+  handler: cmd_reload
+  aliases:
+  - reload
+  contexts:
+  - private
+  description: Перезагрузка
+logs:
+  handler: cmd_logs
+  aliases:
+  - logs
+  contexts:
+  - private
+  description: Логи
+backup:
+  handler: cmd_backup
+  aliases:
+  - backup
+  contexts:
+  - private
+  description: Бэкап
+botstats:
+  handler: cmd_botstats
+  aliases:
+  - botstats
+  contexts:
+  - private
+  description: Статистика бота
+sql:
+  handler: cmd_sql
+  aliases:
+  - sql
+  contexts:
+  - private
+  description: SQL
+clear_cache:
+  handler: cmd_clear_cache
+  aliases:
+  - clear_cache
+  contexts:
+  - private
+  description: Очистка кеша
+broadcast:
+  handler: cmd_broadcast
+  aliases:
+  - broadcast
+  contexts:
+  - private
+  description: Рассылка
+test_logs:
+  handler: cmd_test_logs
+  aliases:
+  - test_logs
+  contexts:
+  - private
+  description: Тест логов
+clearlogs:
+  handler: cmd_clearlogs
+  aliases:
+  - clearlogs
+  contexts:
+  - private
+  description: Очистка логов
+maintenance:
+  handler: cmd_maintenance
+  aliases:
+  - maintenance
+  contexts:
+  - private
+  description: Режим обслуживания
+admin_withdrawals:
+  handler: cmd_admin_withdrawals
+  aliases:
+  - admin_withdrawals
+  contexts:
+  - private
+  description: Заявки на вывод
+warn:
+  handler: cmd_warn
+  aliases:
+  - warn
+  contexts:
+  - group
+  description: Предупреждение
+unwarn:
+  handler: cmd_unwarn
+  aliases:
+  - unwarn
+  - снять_предупреждение
+  contexts:
+  - group
+  description: Снять предупреждение
+warnings:
+  handler: cmd_warnings
+  aliases:
+  - warnings
+  - варны
+  - предупреждения
+  contexts:
+  - group
+  description: Список предупреждений
+mute:
+  handler: cmd_mute
+  aliases:
+  - mute
+  contexts:
+  - group
+  description: Мут
+unmute:
+  handler: cmd_unmute
+  aliases:
+  - unmute
+  - размут
+  contexts:
+  - group
+  description: Размут
+ban:
+  handler: cmd_ban
+  aliases:
+  - ban
+  contexts:
+  - group
+  description: Бан
+kick:
+  handler: cmd_kick
+  aliases:
+  - kick
+  - кик
+  contexts:
+  - group
+  description: Кик
+unban:
+  handler: cmd_unban
+  aliases:
+  - unban
+  - разбан
+  contexts:
+  - group
+  description: Разбан
+rules:
+  handler: cmd_rules
+  aliases:
+  - rules
+  - правила
+  contexts:
+  - group
+  description: Правила
+setrules:
+  handler: cmd_setrules
+  aliases:
+  - setrules
+  - установить_правила
+  contexts:
+  - group
+  description: Установить правила
+clear:
+  handler: cmd_clear
+  aliases:
+  - clear
+  - очистить
+  - очистка
+  contexts:
+  - group
+  description: Очистка чата
+pin:
+  handler: cmd_pin
+  aliases:
+  - pin
+  - закрепить
+  contexts:
+  - group
+  description: Закрепить
+unpin:
+  handler: cmd_unpin
+  aliases:
+  - unpin
+  - открепить
+  contexts:
+  - group
+  description: Открепить
+voice_vip:
+  handler: cmd_voice_vip
+  aliases:
+  - voice_vip
+  contexts:
+  - private
+  description: Голос VIP
+voice_settings:
+  handler: cmd_voice_settings
+  aliases:
+  - voice_settings
+  - voice_settings_ru
+  contexts:
+  - private
+  description: Настройки голоса
+groupadmin:
+  handler: cmd_groupadmin
+  aliases:
+  - group_admin
+  - groupadmin
+  - управлениегруппой
+  contexts:
+  - group
+  - private
+  description: Управление группой
+faq:
+  handler: cmd_faq
+  aliases:
+  - faq
+  contexts:
+  - group
+  - private
+  description: FAQ
+support:
+  handler: cmd_support
+  aliases:
+  - support
+  - ticket
+  contexts:
+  - private
+  description: Поддержка
+feedback:
+  handler: cmd_feedback
+  aliases:
+  - feedback
+  contexts:
+  - private
+  description: Обратная связь
+ad:
+  handler: cmd_ad
+  aliases:
+  - ad
+  - ads
+  - reklama
+  contexts:
+  - group
+  - private
+  description: Реклама
+ai:
+  handler: cmd_ai
+  aliases:
+  - ai
+  - ask
+  - chat
+  contexts:
+  - group
+  - private
+  description: ИИ Ком
+reset:
+  handler: cmd_ai_reset
+  aliases:
+  - reset
+  contexts:
+  - group
+  - private
+  description: Сброс контекста Ком
+ai_limits:
+  handler: cmd_ai_limits
+  aliases:
+  - ai_limits
+  contexts:
+  - group
+  - private
+  description: Лимиты Ком
+profile:
+  handler: cmd_profile
+  aliases:
+  - info
+  - profile
+  - инфо
+  contexts:
+  - group
+  - private
+  description: Профиль
+chatstats:
+  handler: cmd_chatstats
+  aliases:
+  - chatstats
+  - cstats
+  contexts:
+  - group
+  - private
+  description: Статистика чата
+stats:
+  handler: cmd_user_stats
+  aliases:
+  - stats
+  contexts:
+  - group
+  - private
+  description: Статистика пользователя
+whoami:
+  handler: cmd_whoami
+  aliases:
+  - me
+  - whoami
+  contexts:
+  - group
+  - private
+  description: Кто я
+chatinfo:
+  handler: cmd_chatinfo
+  aliases:
+  - chatinfo
+  contexts:
+  - group
+  - private
+  description: Инфо о чате
+ping:
+  handler: cmd_ping
+  aliases:
+  - ping
+  contexts:
+  - group
+  - private
+  description: Пинг
+botcheck:
+  handler: cmd_botcheck
+  aliases:
+  - alive
+  - botcheck
+  contexts:
+  - group
+  - private
+  description: Проверка бота
+debug:
+  handler: cmd_debug
+  aliases:
+  - debug
+  contexts:
+  - private
+  description: Отладка
+version_check:
+  handler: cmd_version_check
+  aliases:
+  - version_check
+  contexts:
+  - private
+  description: Проверка версии
+staff_me:
+  handler: cmd_staff_me
+  aliases:
+  - staff_me
+  contexts:
+  - private
+  description: Персонал
+transfer_rights:
+  handler: cmd_transfer_rights
+  aliases:
+  - transfer_rights
+  contexts:
+  - private
+  description: Передача прав
+cfg_button:
+  handler: cmd_cfg_button
+  aliases:
+  - cfg_button
+  - setbutton
+  contexts:
+  - private
+  description: Настройка кнопки
+alias:
+  handler: cmd_alias
+  aliases:
+  - alias
+  - aliases
+  contexts:
+  - private
+  description: Алиасы команд
+modcfg:
+  handler: cmd_modcfg
+  aliases:
+  - modcfg
+  contexts:
+  - private
+  description: Настройки модерации
+cmdcfg:
+  handler: cmd_cmdcfg
+  aliases:
+  - cmdaccess
+  - cmdcfg
+  contexts:
+  - private
+  description: Настройки команд
+top_activity:
+  handler: cmd_top_activity
+  aliases:
+  - top_activity
+  - topactive
+  contexts:
+  - group
+  - private
+  description: Топ по активности
+test_emoji:
+  handler: cmd_test_emoji
+  aliases:
+  - test_emoji
+  contexts:
+  - private
+  description: Тест эмодзи
+rankperm:
+  handler: cmd_perm
+  aliases:
+  - perm
+  - rankperm
+  contexts:
+  - group
+  - private
+  description: Права по рангу

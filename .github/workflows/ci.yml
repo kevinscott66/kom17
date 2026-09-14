@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "refactor/**"]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Read-only by default: nothing in this workflow writes to the repository.
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    name: Lint, type-check, and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Sync dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: mypy (src — strict, gating)
+        run: uv run mypy src
+
+      - name: mypy (tests — advisory, non-blocking)
+        run: uv run mypy tests || echo "::warning::mypy errors in tests (non-blocking; see A-002 audit)"
+        continue-on-error: true
+
+      # Coverage is on by default via `addopts` in `pyproject.toml`, and it
+      # roughly triples the wall clock of a ~9 200-test suite. Nothing in
+      # this workflow consumes `coverage.xml`, so CI turns it off and reads
+      # the report locally instead.
+      - name: pytest
+        run: uv run pytest -q --no-cov

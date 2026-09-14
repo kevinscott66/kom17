@@ -1,0 +1,89 @@
+# Секреты и конфигурация
+.env
+.env.local
+.env.*.local
+*.env
+# Любая ручная копия .env: бэкап секретен ровно так же, как оригинал,
+# а шаблоны выше не покрывают ни одну из привычных форм имени.
+.env.*
+.env-*
+*.env.bak*
+# ...кроме отслеживаемого шаблона: в нём только имена, без значений.
+!.env.example
+bot_settings.json
+settings.json
+
+# Базы данных
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+database/
+persistent_stats/
+
+# Логи и временные файлы
+logs/
+*.log
+temp/
+tmp/
+*.tmp
+
+# Резервные копии — НИКОГДА не коммитим (снапшоты prod-БД хранятся только на Mac)
+# backups/
+.claude/backups/
+backups/
+*.sqlite
+*.sqlite3
+SHA256SUMS
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Виртуальное окружение
+.venv/
+venv/
+ENV/
+env/
+
+# IDE и ОС
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Tooling (new architecture)
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+# uv.lock is committed (lockfile must be reproducible across machines)
+
+
+# local agent/tooling scratch
+.claude/
+
+# symlinked dev venv (current repo points at sibling project)
+.venv

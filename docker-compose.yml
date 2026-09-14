@@ -1,0 +1,80 @@
+# ------------------------------------------------------------------
+# docker-compose for the new aiogram pipeline.
+#
+# Scope: ONE service — the bot itself. The five SQLite files live on
+# a bind mount so `docker compose down` doesn't nuke them and the
+# host operator can `sqlite3 database/users.db` for an offline
+# inspection. No Redis / Postgres / nginx — those are out-of-band
+# (nginx + systemd are owned by the host, not by this file). This
+# compose is for local development and the future blue/green deploy
+# slot.
+#
+# Why no `version:` key — Compose v2 deprecated it; ignored by the
+# binary and tools that pin schemas complain.
+# ------------------------------------------------------------------
+
+services:
+  bot:
+    build:
+      context: .
+      # Bake the host UID into the runtime user so bind-mounted
+      # database/ and logs/ end up owned by `you`, not root. Override
+      # via `APP_UID=$(id -u) docker compose up` on a non-1000 host.
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+    image: telegram-invite-bot:local
+    container_name: telegram-invite-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # In-container defaults — override in .env if your deploy
+      # differs. ``HOST=0.0.0.0`` is essential: ``127.0.0.1`` (the
+      # legacy main.py default) only binds the loopback inside the
+      # container's net namespace and the published port silently
+      # serves zero traffic.
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-8080}
+      DATABASE_DIR: /app/database
+      LOGS_DIR: /app/logs
+    ports:
+      - "${PORT:-8080}:8080"
+    volumes:
+      # Host-side database directory. Bind mount (not named volume)
+      # so existing legacy .db files at the repo root's database/
+      # are visible to the container with zero copy step.
+      - ./database:/app/database
+      - ./logs:/app/logs
+      # Mount the legacy guide markdown so the new cms/guide_site
+      # serves the same content as the running Flask process during
+      # the strangler window. Read-only — the container has no
+      # business writing to legacy assets.
+      - ./telegraph_guide_ru.md:/app/telegraph_guide_ru.md:ro
+      - ./telegraph_guide_en.md:/app/telegraph_guide_en.md:ro
+    healthcheck:
+      # Compose-level healthcheck duplicates the Dockerfile one so
+      # `docker compose ps` shows `healthy` without inspecting the
+      # image. Same endpoint, same cadence.
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
+    # Read-only root FS with explicit writable spots — narrow the
+    # blast radius of an RCE in any of our deps. The venv lives
+    # under /opt and is intentionally NOT in the writable list:
+    # nothing under it should change at runtime.
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    security_opt:
+      - no-new-privileges:true
+    # CPU/memory caps so a runaway loop in a handler doesn't
+    # starve the host. Generous enough for the bot's real load
+    # (single-digit MB resident, tens of msec CPU per update).
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M

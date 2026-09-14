@@ -1,0 +1,245 @@
+[project]
+name = "telegram-invite-bot"
+version = "0.1.0"
+description = "Telegram bot — strangler refactor from telebot monolith to aiogram 3."
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "kevinscott66" }]
+
+dependencies = [
+    # --- Telegram framework ---
+    "aiogram>=3.13,<4",
+    # Legacy library kept until strangler migration completes:
+    "pyTelegramBotAPI>=4.14,<5",
+
+    # --- Web layer ---
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    # FastAPI's ``Form`` dependency parser requires python-multipart at
+    # runtime — without it any route that uses ``Form(...)`` parameters
+    # raises ``RuntimeError`` at route-registration time, not at request
+    # time. The guide editor (POST /commands/edit) is the first place
+    # we need form parsing, but pinning it as a hard dep avoids the
+    # next form-using route quietly breaking startup.
+    "python-multipart>=0.0.9",
+
+    # --- DI / config ---
+    "dishka>=1.4",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+
+    # --- DB ---
+    "sqlalchemy[asyncio]>=2.0.36",
+    "aiosqlite>=0.20",
+    "alembic>=1.14",
+
+    # --- HTTP ---
+    "httpx>=0.27",
+    "aiohttp>=3.10",
+
+    # --- AI ---
+    # OpenAI SDK for T-021 (/ai, /gpt, /chat) and T-023 (VIP TTS).
+    # AsyncOpenAI is used in production; the service uses a
+    # Protocol seam so tests can pass an AsyncMock without
+    # importing this SDK.
+    "openai>=1.50",
+
+    # --- Observability ---
+    "loguru>=0.7",
+    "structlog>=24.4",
+    "sentry-sdk>=2.18",
+    "prometheus-client>=0.21",
+
+    # --- Misc ---
+    "pyyaml>=6.0",
+    "pillow>=11.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "types-pyyaml>=6.0",
+    "sqlacodegen-v2>=0.1.4",
+    "pre-commit>=4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/telegram_invite_bot"]
+
+# ---------------------------------------------------------------------------
+# Ruff (lint + format)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+    "bot.py",
+    "translations.py",
+    "command_aliases.py",
+    "rock_paper_scissors.py",
+    "guide_site.py",
+    "universal_handler.py",
+    "group_management.py",
+    "context_manager.py",
+    "relationship_router.py",
+    "menu_optimizer.py",
+    "role_checker.py",
+    "compatibility_bridge.py",
+    "webhook_server.py",
+    "check_database.py",
+    "check_webhook.py",
+    "deploy_to_server.py",
+    "find_duplicates.py",
+    "health_check.py",
+    "launcher.py",
+    "reset_telegram_bot.py",
+    "update_telegraph_now.py",
+    "scripts",
+    "backups",
+    "migrations/versions",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",     # pycodestyle / pyflakes
+    "I",                # isort
+    "B",                # bugbear
+    "UP",               # pyupgrade
+    "ASYNC",            # async-correctness
+    "S",                # bandit (security)
+    "SIM",              # simplify
+    "RET",              # return
+    "TCH",              # type-checking blocks
+    "PIE",              # misc
+    "PLE", "PLW",       # pylint errors/warnings
+]
+ignore = [
+    "B008",  # FastAPI Depends() pattern
+    # ``from __future__ import annotations`` is in every module, so TC0xx
+    # gains us nothing — annotations are strings already, no runtime cost.
+    "TC001", "TC002", "TC003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "PLR2004"]
+# S101 (bare ``assert``) used to be ignored GLOBALLY, with the comment
+# "assert allowed in tests" — which the line above already handles. Its
+# only live effect was to permit ``assert`` in ``src``, and #263 is what
+# that cost: seven bare ``assert credited is not None`` on the /duel,
+# /cpc and /pvp payout paths, in a service whose systemd unit runs
+# WITHOUT ``-O`` in production and therefore crashed mute,
+# logging neither the player ids nor the amounts in flight.
+#
+# The waiver is now scoped to the one layer where ``assert`` is honest:
+# handler entrypoints, where an aiogram filter has already guaranteed
+# ``message.from_user`` / ``callback.message`` and mypy cannot see it.
+# Services, repositories and the payment webhook get NO waiver — that is
+# where money moves, and a new ``assert`` there now fails lint instead of
+# waiting to be found. The handful that remain in those layers carry an
+# individually-audited ``# noqa: S101`` with its reason.
+#
+# Narrowing an aiogram event is not a licence to decide anything about
+# money inside one.
+"src/telegram_invite_bot/handlers/**" = ["S101"]
+"src/telegram_invite_bot/utils/aiogram.py" = ["S101"]
+# HTML/CSS templates are inline triple-quoted strings — wrapping the
+# CSS lines to fit 100 cols would break legacy parity (the legacy
+# editor uses the same byte-for-byte template) and add no readability.
+"src/telegram_invite_bot/cms/guide_site/editor.py" = ["E501"]
+"src/telegram_invite_bot/cms/guide_site/rendering.py" = ["E501"]
+# RR-1 #8: the achievement DEFINITIONS table keeps each entry on one line
+# (ru/en name + icon + stat + threshold + ru/en description) for scannability;
+# wrapping every NamedTuple call across 7 lines hurts readability of the table.
+"src/telegram_invite_bot/core/achievements.py" = ["E501"]
+
+# ---------------------------------------------------------------------------
+# mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+plugins = ["pydantic.mypy"]
+exclude = [
+    "^legacy/",
+    "^bot\\.py$",   # legacy monolith (kept as parity reference)
+    "^migrations/",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "telebot.*",
+    "sqlacodegen_v2.*",
+    # Payment provider SDKs — optional runtime deps (commented out in
+    # requirements.txt). The webhook handlers import them lazily inside
+    # the request scope; without these stubs, mypy --strict trips on
+    # the import lines.
+    "yookassa.*",
+    "stripe.*",
+]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src/telegram_invite_bot",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+]
+asyncio_mode = "auto"
+# Pin the per-test event-loop scope to silence pytest-asyncio's
+# "unset" deprecation warning (which would otherwise become an error
+# under filterwarnings=error below). "function" matches the default
+# pytest-asyncio currently uses; spelling it out keeps the contract
+# stable across upgrades.
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "unit: pure unit tests, no I/O",
+    "integration: hits a real (temporary) SQLite file",
+    "e2e: full handler flow via mock Bot",
+]
+# Promote deprecations + warnings to errors so future Python (3.16
+# drops asyncio.AbstractEventLoopPolicy, pydantic 2.x keeps tightening,
+# etc.) surfaces in CI rather than a silent column in the test output.
+# Third-party deprecations we can't fix are ignored explicitly with
+# their origin recorded — better than a blanket mute.
+filterwarnings = [
+    "error",
+    # pytest-asyncio 1.x still ships a reference to the deprecated
+    # asyncio.AbstractEventLoopPolicy. Tracked upstream; remove this
+    # line when pytest-asyncio drops the import.
+    "ignore::DeprecationWarning:pytest_asyncio.plugin",
+    # ``PytestUnraisableExceptionWarning`` was previously demoted to
+    # ``default`` while D-002 audited finalizer leakage in
+    # ``tests/integration/test_main_router_wiring.py``. The fix landed
+    # with ``await registry.dispose()`` in the ``full_dispatcher``
+    # teardown; the strict ``error`` mode above now catches any
+    # regression.
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/telegram_invite_bot"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]

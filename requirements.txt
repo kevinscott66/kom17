@@ -1,0 +1,73 @@
+# Runtime dependencies of the application, mirroring
+# `[project.dependencies]` in pyproject.toml.
+#
+# `uv.lock` is the pinned source of truth and `uv sync` is the
+# supported install. This file exists for a plain-pip environment and
+# carries the same ranges, not pins — regenerate it from pyproject when
+# that list changes.
+#
+# What used to be here was the legacy monolith's dependency set
+# (flask, matplotlib, faster-whisper, requests, python-dotenv). None of
+# it is imported anywhere under `src/`, so `pip install -r
+# requirements.txt` installed an environment the running application
+# could not start in. The legacy list is at the bottom, commented out.
+
+# --- Telegram framework ---
+aiogram>=3.13,<4
+# Legacy library kept until the strangler migration completes:
+pyTelegramBotAPI>=4.14,<5
+
+# --- Web layer ---
+fastapi>=0.115
+uvicorn[standard]>=0.32
+# Required by FastAPI's `Form` parser: without it, registering a route
+# that uses `Form(...)` raises at startup, not at request time.
+python-multipart>=0.0.9
+
+# --- DI / config ---
+dishka>=1.4
+pydantic>=2.9
+pydantic-settings>=2.6
+
+# --- DB ---
+sqlalchemy[asyncio]>=2.0.36
+aiosqlite>=0.20
+alembic>=1.14
+
+# --- HTTP ---
+httpx>=0.27
+aiohttp>=3.10
+
+# --- AI ---
+openai>=1.50
+
+# --- Observability ---
+loguru>=0.7
+structlog>=24.4
+sentry-sdk>=2.18
+prometheus-client>=0.21
+
+# --- Misc ---
+pyyaml>=6.0
+pillow>=11.0
+
+# --- Payment provider SDKs: optional, deliberately not installed ---
+# The webhook handlers import them lazily inside the request scope, so
+# the service starts and every other provider works without them.
+# Read repositories/transactions_repo.py before enabling either: the
+# reversal path does not stamp their credits.
+# yookassa>=3.0,<4.0
+# stripe>=8.0,<13.0
+# CryptoPaySDK>=1.5,<2.0
+
+# --- Legacy monolith (bot.py) only — not needed to run the service ---
+# bot.py is kept as a parity reference and is not executed. Uncomment
+# only if you intend to run it.
+# flask>=3.0.0,<4.0
+# matplotlib>=3.7.0,<4.0
+# faster-whisper>=1.0.0,<2.0     # also needs ffmpeg on the system
+# requests>=2.31.0,<3.0
+# python-dotenv>=1.0.0,<2.0
+# aiofiles>=23.2.0,<25.0
+# simpleeval==0.9.13
+# httpcore>=1.0.8,<2.0

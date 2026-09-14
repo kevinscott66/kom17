@@ -1,0 +1,87 @@
+# Keep the build context small — every byte here is sent to the
+# Docker daemon on every `docker build`. The slow-rebuild trap is
+# almost always a stray `node_modules`/`.venv`/`__pycache__` slipping
+# into the context, not the source itself.
+
+# Python build/cache artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenvs — recreated in the builder stage
+.venv/
+venv/
+env/
+
+# IDEs / OS scratch
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# VCS
+.git/
+.gitignore
+.github/
+
+# Local databases — bind-mounted at runtime, not baked into the image.
+# Without this the image would ship the dev .db files and any secret
+# the developer has in users.db.
+database/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs — produced at runtime
+logs/
+*.log
+
+# Local env files — secrets MUST NOT be baked into the image
+.env
+.env.*
+!.env.example
+
+# The monolith and its satellites. They stay in the repository — the
+# parity tests cite bot.py line numbers for the behaviour they
+# preserve — but nothing in the image imports them: the bridge was
+# removed at the cutover and the runtime is the aiogram application
+# alone. Keeping them out of the build context keeps the image lean
+# and makes it structurally impossible for the container to fall back
+# into code that no longer runs anywhere.
+bot.py
+universal_handler.py
+group_management.py
+relationship_router.py
+menu_optimizer.py
+role_checker.py
+context_manager.py
+rock_paper_scissors.py
+command_aliases.py
+translations.py
+guide_site.py
+telegraph_*.html
+telegraph_*.md
+backups/
+docs/
+scripts/
+temp/
+templates/
+persistent_stats/
+
+# Tests — image is for serving prod, not running pytest
+tests/
