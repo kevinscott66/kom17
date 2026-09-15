@@ -483,9 +483,9 @@ class CoinPayoutSpec:
 
         #1139 — the edge is a function of PRICE, so keep the prices in
         view when touching this. At the legacy 2000 the big gift pays a
-        mean of ~2011, i.e. +0.4% TO THE BUYER: a net faucet. Production
-        charges 2500 for that SKU, which turns the same bands into a
-        ~19.6% sink. The secret gift is ~-21% at its price of 500.
+        mean of ~2011, i.e. +0.4% TO THE BUYER: a net faucet. Economy 0017
+        prices it at 990 over 350..2000 (a ~23% sink); the secret gift is
+        190 over 30..400 (~-21%). Both keep roughly the edge of 2500/500.
         Nothing in the schema enforces this — there is no CHECK
         constraint and no validation on ``shop_items.price`` — so a hand
         edit of the catalog back to 2000 silently flips the ecosystem's
@@ -1107,8 +1107,8 @@ def plan_effect_application(
             #  * touch the NAME — pluralise it, translate it, slip a
             #    word between the emoji and the noun — and
             #    ``_luck_shape_for`` stops matching, dropping the live
-            #    "Большой подарок" into a uniform 1000-5000 draw: a mean
-            #    of 3000 against a price of 2500, +20% to the buyer,
+            #    "Большой подарок" into a uniform 350-2000 draw: a mean
+            #    of 1175 against a price of 990, +19% to the buyer,
             #    repeatable for as long as the operator restocks;
             #  * or leave the name alone and put the PRICE back to the
             #    legacy 2000, which the remapped bands already beat by

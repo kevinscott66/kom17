@@ -37,7 +37,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 # moment we want this test to fail loudly.
 _EXPECTED_HEADS: tuple[tuple[str, str], ...] = (
     ("users", "0012_marriages_in_top_backfill"),
-    ("economy", "0016_withdrawal_alerted_at"),
+    ("economy", "0017_shop_price_rebalance"),
     ("activity", "0001_baseline_activity"),
     ("moderation", "0011_chat_scoped_indexes"),
     ("message_stats", "0002_chat_scoped_index"),

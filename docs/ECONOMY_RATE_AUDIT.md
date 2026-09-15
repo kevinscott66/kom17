@@ -218,7 +218,10 @@ a single wallet at no cost). R8 prices that shuttle — see §8.3.
 - **Shop** — 500…10 000 COM per item (`👑 VIP статус` 5 000,
   `💎 Легендарный` 10 000). It is the single largest sink in the
   ledger by a wide margin; the balances themselves stay out of the
-  repository (§5).
+  repository (§5). *(2026-09: economy migration
+  `0017_shop_price_rebalance` cuts the sellable prices to 90…990 COM (9…99 ₽) —
+  buffs 90, VIP 990, gifts 190/990 with prizes 30–400 /
+  350–2 000 at a ~77–79 % payout; see the revision docstring.)*
 - **Transfer tax** — `base_tax_rate = 0.05`
   ([transfer_service.py:168](../src/telegram_invite_bot/services/transfer_service.py#L168)),
   halved for VIP. Small: `tax` rows are a rounding error next to `shop`.
