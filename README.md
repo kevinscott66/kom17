@@ -1,172 +1,109 @@
 # KOM17
 
-[![CI](https://github.com/kevinscott66/kom17/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinscott66/kom17/actions/workflows/ci.yml)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
-[![Licence: MIT](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
+[English](README.md) · [Русский](README.ru.md)
 
-A Telegram community platform, and a strangler-fig refactor carried out on a
-bot that never stopped serving live groups.
+[![CI](https://github.com/kevinscott66/kom17/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinscott66/kom17/actions/workflows/ci.yml) · [MIT](LICENSE)
 
-KOM17 runs invites, moderation, an in-chat economy with real payments, games,
-an AI assistant, statistics and an admin panel. The interesting part is not the
-feature list — it is that a 45,000-line single-file `telebot` monolith was
-replaced module by module with a typed, dependency-injected `aiogram 3`
-application, without a cutover weekend, while it kept serving live groups.
+A Telegram community platform with invites, moderation, an in-chat economy, payments and AI features. The central engineering work was replacing a monolith one subsystem at a time.
 
-## The strangler migration
+**Status:** Operating product · public snapshot. Cutover completed 26 May 2026.
 
-`bot.py` is the original monolith; `src/telegram_invite_bot/` is the
-replacement that grew out of it. For most of the migration the two pipelines
-ran side by side behind a bridge, and a single environment variable decided
-which of them owned an incoming update: unset, everything went to the monolith;
-set, each update was offered to the aiogram dispatcher first and fell back to
-the monolith when no router claimed it. That asymmetry is what made the port
-reversible — one variable and one restart, in either direction — and it is why
-the work could proceed one feature at a time with no feature freeze.
+[ Case study ](https://dobropalm.tech/case-studies/kom17/) · [Portfolio](https://dobropalm.tech) · [Live product](https://t.me/kom17bot)
 
-The bridge is gone. The cutover completed in May 2026: every handler that
-mattered had been ported and pinned, so the fallback had stopped firing.
-Today an update takes one path.
+![The actual post-migration request path, shown as an architecture illustration rather than a screenshot of private community chats.](https://dobropalm.tech/assets/media/kom17-architecture.svg)
 
-```
-Telegram ──▶ FastAPI webhook ──▶ aiogram 3 Dispatcher ──▶ routers
-                                                             │
-                                       dishka DI ──▶ services
-                                                             │
-                                repositories ──▶ SQLAlchemy 2 (async)
-                                                             │
-                                            5 independent SQLite engines
-```
+_The actual post-migration request path, shown as an architecture illustration rather than a screenshot of private community chats._
 
-[`CUTOVER.md`](CUTOVER.md) is the record of how that was done, and of why
-`bot.py` is still in the tree: every migrated handler is pinned by a parity
-test against the legacy behaviour it replaced — including the behaviour that
-was merely accidental — and those tests cite `bot.py` line numbers for the
-rules they preserve. The monolith is the evidence, not a fallback.
+## Problem & outcome
 
-## What it does
+A running community already has rules, accumulated data and familiar workflows. A full rewrite with one big switch makes every missing detail a user problem.
 
-| Area | Highlights |
-|------|-----------|
-| Community | Invite tracking, referrals, group registry, welcome and events |
-| Moderation | Anti-flood, warnings, mutes, bans, staff ranks, audit log |
-| Economy | Coins, shop, transfers with tax, group treasuries, bonds, promo codes |
-| Payments | Crypto Pay, YooKassa, Stripe and RollyPay, each behind a signed webhook |
-| Games | Duels, PvP, rock-paper-scissors, card games, achievements, leaderboards |
-| AI | DeepSeek and OpenAI assistants, Whisper transcription, TTS voice replies |
-| Social | Relationships, marriage, couple activities, profiles, ranks |
-| Web | Public command guide, offer and privacy pages, contact form (`cms/`) |
-| Ops | Health checks, Prometheus-style counters, Sentry, structured logging |
+On 26 May 2026, the cutover completed to a single FastAPI → aiogram 3 path. The bridge is no longer a runtime fallback. A regression test guards against restoring the old entry point; the monolith remains evidence for parity tests.
 
-Interface is bilingual (RU/EN) through `i18n/`.
+## My contribution
 
-## Economy safety
+I created KOM17 as my own product: the first version was a monolith, then I split it into modules. I own the community and economy logic, both architecture stages and the migration requirements: which workflows must survive, where module responsibilities sit and when the old execution path can be removed.
 
-An in-chat currency that converts to USDT is an abuse surface, so the payout
-path is bounded in several independent places rather than one:
+I use AI tools in development; product and architectural decisions are my responsibility.
 
-- **Minting is rate-limited.** Passive per-message earning is gated by
-  cooldown, per-minute ceiling, duplicate-text window, minimum length and a
-  per-user daily cap.
-- **Cash-out requires real money in.** An account can only withdraw once at
-  least one `purchase_*` ledger row exists.
-- **Lifetime payout is capped** at a configurable ratio of lifetime deposits,
-  because "did money ever come in" is a threshold, not a bound.
-- **Rolling daily and monthly withdrawal limits**, derived live from request
-  timestamps so the window self-resets.
-- **Per-user AI quotas**, because `/ai`, `/ask` and `/voice` cost the user
-  nothing and bill the operator's provider key.
+## Engineering highlights
 
-Every knob has a documented default and a documented "off" value. The reasoning
-behind each is in `docs/ECONOMY_RATE_AUDIT.md`.
+- **Migrate behavior, not just code.** Economy and moderation rules are pinned before replacement. A cleaner implementation can otherwise silently change the product.
+- **Finish the transition.** A bridge is useful while rollback depends on it. After cutover, a regression test guards its removal so temporary architecture does not become permanent.
+- **Migrations follow data ownership.** Five SQLite databases have separate Alembic lineages. A wrapper explicitly selects each database.
 
-## Stack
+## Architecture & stack
 
-Python 3.11+ · aiogram 3 · FastAPI · uvicorn · dishka (DI) · pydantic v2 +
-pydantic-settings · SQLAlchemy 2 async · aiosqlite · Alembic · httpx · loguru ·
-pytest · Docker · systemd · nginx
+| Layer | Implementation |
+|---|---|
+| Frontend | Telegram; public web pages and administration |
+| Backend | Python, aiogram 3, FastAPI, dishka |
+| Data | SQLAlchemy 2 async, five SQLite databases, Alembic |
+| Infrastructure / AI | Docker / systemd; metrics, Sentry; text and speech providers |
 
-148k lines in `src/`, 186k lines of tests across 578 test modules (9 212 tests),
-42 Alembic migrations across five independently versioned databases.
+users, economy, activity, moderation and message_stats have independent schema versions. scripts.alembic_run selects the migration lineage. A plain Alembic command without selecting the database does not replace migrating all five stores.
 
 ## Quick start
 
 ```bash
-uv sync                 # or: pip install -r requirements.txt
-cp .env.example .env    # fill in BOT_TOKEN, WEBHOOK_URL, ADMIN_CHAT_ID
-
-# Five databases, five independent Alembic lineages. The wrapper points
-# `version_locations` at migrations/versions/<db>/ before the script
-# directory is built — plain `alembic upgrade head` silently no-ops here.
-for db in users economy activity moderation message_stats; do
-  python -m scripts.alembic_run -x db=$db upgrade head
-done
-
-python -m telegram_invite_bot --mode=polling      # local development
-python -m telegram_invite_bot --mode=webhook      # production
+# Requires Python 3.11+ and uv.
+git clone https://github.com/kevinscott66/kom17.git
+cd kom17
+uv sync --all-extras --dev
+uv run pytest tests/regression/test_legacy_process_is_gone.py -q --no-cov
 ```
 
-Polling and webhook are the two run modes, and they are mutually exclusive per
-bot token: Telegram refuses `getUpdates` while a webhook is set, so a dev
-instance needs its own token. In webhook mode the app serves FastAPI on
-`HOST:PORT` and calls `setWebhook` on startup — behind a tunnel
-(`ngrok http 8080`) or a reverse proxy, with the public HTTPS URL in
-`WEBHOOK_URL`.
+This checks the public snapshot without connecting a bot. For local operation, copy `.env.example` to `.env`, configure a separate test bot and local database paths, apply each database’s migrations through `scripts.alembic_run`, then use polling mode. A live token with a webhook must not also be used for polling.
 
 ```bash
-pytest                  # full suite
-ruff check . && mypy src
+# After configuring local .env and database paths:
+for db in users economy activity moderation message_stats; do
+  uv run python -m scripts.alembic_run -x db=$db upgrade head
+done
+uv run python -m telegram_invite_bot --mode=polling
 ```
 
-## Layout
+## Checks
 
-```
-src/telegram_invite_bot/   aiogram 3 application: handlers, services,
-                           repositories, DI, i18n, CMS, scheduler, webhook
-bot.py                     legacy monolith, kept as the parity tests' source
-tests/                     unit, integration, e2e, regression, parity
-migrations/                Alembic, five separate database lineages
-docs/                      design notes, economy audit, backlogs
+```bash
+uv run ruff check .
+uv run mypy src
+uv run pytest -q --no-cov
 ```
 
-## Notes on this repository
+The badge links to the actual workflow. Listing a command does not claim every check ran for each README edit.
 
-This is a published snapshot of a working private repository, not the working
-repository itself. Server host names, IP addresses and deployment identifiers
-have been removed rather than masked; the product's own public domain stays,
-because it is public. No credentials are committed — everything is supplied at
-runtime through the environment, and `.env.example` lists every variable the
-application reads.
+## Deployment, observability & API
 
-Deployment scripts, operational runbooks, the production schema dump, backups
-and internal audit reports are deliberately not part of this repository, so a
-few references in the code point at files that are not here:
+The webhook checks Telegram’s secret header before dispatch. /healthz, /readyz and /metrics provide separate signals for process health, database readiness and application behavior. Payment integrations have their own validation and replay accounting.
 
-- `docs/prod_schemas.sql` — the schema dump the migrations and repository tests
-  were checked against;
-- `docs/DEPLOY.md` — the deploy runbook the admin status card links to;
-- `audits/*.md`, and finding ids such as `M-E-4` or `SEV-2` — internal review
-  reports.
+```bash
+# For a locally configured webhook server; substitute its configured port:
+curl --fail http://127.0.0.1:8000/healthz
+curl --fail http://127.0.0.1:8000/readyz
+curl --fail http://127.0.0.1:8000/metrics
+```
 
-The files stay private; the code they explain is here in full.
+Liveness and readiness are intentionally separate. Metrics and operational endpoints should be protected according to your deployment. The examples do not send Telegram messages or payment requests.
 
-### Reading the references
+## Security & limits
 
-Comments and tests carry short ids so that a rule can be traced back to the
-reason it exists:
+The public repository is a snapshot, not the complete development history. Local operation requires a separate bot and configuration. End-to-end exactly-once is not claimed for every handler; redelivery safety belongs to the individual operation.
 
-| Id | Meaning |
-|----|---------|
-| `T-nnn` | a task of the strangler port — a feature moved or a piece of the bridge removed |
-| `R-FIX-nnn` | a defect found in review of the ported code, and the fix that pins it |
-| `L-nn` | an entry in [`docs/LOST_FEATURES_BACKLOG.md`](docs/LOST_FEATURES_BACKLOG.md) — legacy behaviour that did not survive the port |
-| `R1`–`R12` | a recommendation of the economy audit, [`docs/ECONOMY_RATE_AUDIT.md`](docs/ECONOMY_RATE_AUDIT.md) |
-| `#nnnn` | an issue in the private tracker |
-| `bot.py:N` | the legacy line a parity test preserves; checked by `tests/regression/test_source_citations.py` |
+Incremental replacement needs more compatibility code and tests than starting over. In return, changes can be checked in smaller steps. Separate databases establish data ownership but complicate migrations and cross-database consistency.
 
-Documentation and configuration comments are partly in Russian — the product's
-primary community language.
+Disclosure policy: [SECURITY.md](SECURITY.md).
 
-## Licence
+## History & documentation
 
-MIT — see [LICENSE](LICENSE).
+KOM17 is my own product: it began as a monolith and was later split into modules. This repository is a public snapshot of the working project, not the full private history. The cutover completed on 26 May 2026. `bot.py` remains evidence for parity tests, not the active runtime.
+
+- [Completed cutover record](CUTOVER.md)
+- [Guard against legacy entry points](tests/regression/test_legacy_process_is_gone.py)
+- [Health and delivery semantics](src/telegram_invite_bot/webhook/server.py)
+- [Migration wrapper](scripts/alembic_run.py)
+- [Public snapshot and scope](README.md)
+
+## License
+
+MIT - [LICENSE](LICENSE).
